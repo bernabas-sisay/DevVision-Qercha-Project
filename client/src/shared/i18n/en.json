@@ -1,0 +1,8 @@
+{
+  "common": {
+    "retry": "Retry",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}
