@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --hint: #999999;
+  --link: #2481cc;
+  --button: #2481cc;
+  --button-text: #ffffff;
+  --surface: #f4f4f5;
+}
