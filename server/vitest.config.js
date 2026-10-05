@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     setupFiles: ['./tests/setup.js'],
-    fileParallelism: false
+    fileParallelism: false,
+    passWithNoTests: true
   }
 });

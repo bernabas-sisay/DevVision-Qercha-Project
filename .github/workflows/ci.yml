@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev, setup]
+  pull_request:
+    branches: [main, dev, setup]
+
+jobs:
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: qercha
+          POSTGRES_PASSWORD: qercha
+          POSTGRES_DB: qercha_test
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready -U qercha" --health-interval 5s --health-retries 10
+
+      valkey:
+        image: valkey/valkey:8
+        ports:
+          - 6379:6379
+
+    env:
+      DATABASE_URL: postgresql://qercha:qercha@localhost:5432/qercha_test
+      DIRECT_URL: postgresql://qercha:qercha@localhost:5432/qercha_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test-secret
+      PIN_SECRET: test-pin-secret
+      BOT_TOKEN: 123456:test
+      ENABLE_TEST_ROUTES: "true"
+      VERIFIER_MODE: mock
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Deploy Prisma migrations
+        working-directory: server
+        run: npx prisma migrate deploy
+
+      - name: Lint and Test backend
+        working-directory: server
+        run: npm run lint && npm test
+
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: client
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: client
+        run: npm run build
+
+      - name: Test frontend
+        working-directory: client
+        run: npm test
