@@ -1,0 +1,30 @@
+name: Database Backup
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Run PostgreSQL pg_dump
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install PostgreSQL client tools
+        run: sudo apt-get update -y && sudo apt-get install -y postgresql-client
+
+      - name: Run pg_dump
+        env:
+          PROD_DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        run: |
+          mkdir -p backups
+          TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
+          pg_dump "$PROD_DATABASE_URL" -F c -b -v -f "backups/qercha_backup_${TIMESTAMP}.dump"
+
+      - name: Upload Backup Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup
+          path: backups/
+          retention-days: 14

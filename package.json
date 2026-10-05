@@ -1,0 +1,21 @@
+{
+  "name": "qercha",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --prefix client && npm run prisma:generate --prefix server",
+    "start": "npm run prisma:migrate --prefix server && node server/src/server.js",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "test:server": "npm test --prefix server",
+    "test:client": "npm test --prefix client",
+    "test": "npm run test:server && npm run test:client",
+    "lint:server": "npm run lint --prefix server",
+    "lint:client": "npm run lint --prefix client",
+    "lint": "npm run lint:server && npm run lint:client"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
